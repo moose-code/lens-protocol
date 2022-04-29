@@ -1,0 +1,9 @@
+## defaults for _all_ profiles
+[default]
+src = 'contracts'
+test = 'test'
+libs = ["node_modules", "forge/libs"]
+
+
+
+# See more config options https://github.com/gakonst/foundry/tree/master/config
