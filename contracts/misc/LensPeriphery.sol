@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-only
+// SPDX-License-Identifier: MIT
 
 pragma solidity 0.8.10;
 
@@ -61,22 +61,24 @@ contract LensPeriphery {
     function setProfileMetadataURIWithSig(DataTypes.SetProfileMetadataWithSigData calldata vars)
         external
     {
-        address owner = IERC721Time(address(HUB)).ownerOf(vars.profileId);
-        _validateRecoveredAddress(
-            _calculateDigest(
-                keccak256(
-                    abi.encode(
-                        SET_PROFILE_METADATA_WITH_SIG_TYPEHASH,
-                        vars.profileId,
-                        keccak256(bytes(vars.metadata)),
-                        sigNonces[owner]++,
-                        vars.sig.deadline
+        unchecked {
+            address owner = IERC721Time(address(HUB)).ownerOf(vars.profileId);
+            _validateRecoveredAddress(
+                _calculateDigest(
+                    keccak256(
+                        abi.encode(
+                            SET_PROFILE_METADATA_WITH_SIG_TYPEHASH,
+                            vars.profileId,
+                            keccak256(bytes(vars.metadata)),
+                            sigNonces[owner]++,
+                            vars.sig.deadline
+                        )
                     )
-                )
-            ),
-            owner,
-            vars.sig
-        );
+                ),
+                owner,
+                vars.sig
+            );
+        }
         _setProfileMetadataURI(vars.profileId, vars.metadata);
     }
 
