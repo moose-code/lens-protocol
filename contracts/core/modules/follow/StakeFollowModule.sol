@@ -26,6 +26,7 @@ contract StakeFollowModule is FeeModuleBase, FollowValidatorFollowModuleBase {
     // profileID -> address -> timestamp to withdraw
     mapping(uint256 => mapping(address => uint256)) public timestampEligibleForWithdraw;
     mapping(uint256 => mapping(address => bool)) public hasWithdrawnStake;
+    mapping(uint256 => mapping(address => uint256)) public stakeAmount;
 
     constructor(address hub, address moduleGlobals) FeeModuleBase(moduleGlobals) ModuleBase(hub) {}
 
@@ -55,13 +56,17 @@ contract StakeFollowModule is FeeModuleBase, FollowValidatorFollowModuleBase {
     ) external override onlyHub {
         uint256 amount = _dataByProfile[profileId].amount;
         address currency = _dataByProfile[profileId].currency;
-        _validateDataIsExpected(data, currency, amount);
+        uint256 lengthOfStaking = _dataByProfile[profileId].lengthOfStaking;
+
+        _validateStakeDataIsExpected(data, currency, amount, lengthOfStaking);
 
         timestampEligibleForWithdraw[profileId][follower] =
             block.timestamp +
             _dataByProfile[profileId].lengthOfStaking;
 
         IERC20(currency).safeTransferFrom(follower, address(this), amount);
+
+        stakeAmount[profileId][follower] = amount;
     }
 
     function redeemStake(uint256 profileId) external {
@@ -77,7 +82,7 @@ contract StakeFollowModule is FeeModuleBase, FollowValidatorFollowModuleBase {
         // process return.
         IERC20(_dataByProfile[profileId].currency).transfer(
             msg.sender,
-            _dataByProfile[profileId].amount
+            stakeAmount[profileId][msg.sender]
         );
     }
 

@@ -41,4 +41,19 @@ abstract contract FeeModuleBase {
         if (decodedAmount != amount || decodedCurrency != currency)
             revert Errors.ModuleDataMismatch();
     }
+
+    function _validateStakeDataIsExpected(
+        bytes calldata data,
+        address currency,
+        uint256 amount,
+        uint256 lengthOfStaking
+    ) internal pure {
+        (address decodedCurrency, uint256 decodedAmount, uint256 decodedLengthOfStaking) = abi
+            .decode(data, (address, uint256, uint256));
+        if (
+            decodedAmount != amount ||
+            decodedCurrency != currency ||
+            decodedLengthOfStaking != lengthOfStaking
+        ) revert Errors.ModuleDataMismatch();
+    }
 }
